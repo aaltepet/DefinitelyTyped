@@ -23,6 +23,8 @@ declare class OAuth2Strategy extends Strategy {
      */
     protected _oauth2: OAuth2;
 
+    something: string;
+
     constructor(options: OAuth2Strategy.StrategyOptions, verify: OAuth2Strategy.VerifyFunction);
     constructor(options: OAuth2Strategy.StrategyOptionsWithRequest, verify: OAuth2Strategy.VerifyFunctionWithRequest);
 
