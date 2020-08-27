@@ -59,9 +59,9 @@ npm install --save-dev @types/node
 这通常会在 `package.json` 文件中的 `"types"` 或 `"typings"` 字段中提供，
 或者可以只查找包中的任何 ".d.ts" 文件并手动将它们包含在 `/// <reference path="" />`.
 
-#### 旧版本的 TypeScript（2.9 和更早版本）
+#### 旧版本的 TypeScript（3.0 和更早版本）
 
-Definitely Typed 仅在小于 2 年的 TypeScript 版本上测试软件包。当前已测试 3.0 及更高版本。如果您使用的是 TypeScript 2.0 到 2.9，仍然可以尝试安装 @types 软件包，大多数软件包都不使用 TypeScript 的新特性。但是不能保证它们会起作用，这是支持窗口：
+Definitely Typed 仅在小于 2 年的 TypeScript 版本上测试软件包。当前已测试 3.1 及更高版本。如果您使用的是 TypeScript 2.0 到 3.0，仍然可以尝试安装 @types 软件包，大多数软件包都不使用 TypeScript 的新特性。但是不能保证它们会起作用，这是支持窗口：
 
 Version | Released | End of Support
 -- | -- | --
@@ -77,6 +77,7 @@ Version | Released | End of Support
 3.7 | November 2019 | November 2021
 3.8 | February 2020 | February 2022
 3.9 | May 2020 | May 2022
+4.0 | August 2020 | August 2022
 
 `@types` 软件包具有它们明确支持的 TypeScript 版本的标记，因此通常可以获取早于 2 年窗口的较早版本的软件包。例如，如果运行 `npm dist-tags @types/react`，您将看到 TypeScript 2.5 可以将类型用于 react@16.0，而 TypeScript 2.6 和 2.7 可以将类型用于 react@16.4：
 
@@ -462,7 +463,7 @@ _注意：本节中的讨论假定你熟悉 [语义版本控制](https://semver.
 
 TypeScript 手册包含了优秀的 [关于编写类型定义的概括信息](https://www.typescriptlang.org/docs/handbook/declaration-files/introduction.html), 以及 [此示例定义文件](https://www.typescriptlang.org/docs/handbook/declaration-files/templates/global-modifying-module-d-ts.html)，它展示了如何使用 ES6 模块语法创建定义，同时还指定了全局范围可用的对象。这个技术在 [big.js 的定义](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/big.js/index.d.ts) 得到了实际证明。该库可以通过网页上的脚本标记全局加载，也可以通过 require 或者 ES6 风格的风格导入。
 
-要测试你的类型定义是否能全局引用或者作为模块导入，清创建一个 `test` 文件，并在其中放置两个测试文件。一个命名为 `YourLibraryName-global.test.ts`, 另一个为 `YourLibraryName-module.test.ts`. *全局* 测试文件应该根据如何在全局范围内库可用的网页上加载的脚本中使用它来执行定义，在这种情况下，你不应该制定 import 语句。*模块* 测试文件应该根据导入时的使用方式（包括 `import` 语句）来执行定义。如果在 `tsconfig.json` 文件中指定了 `files` 属性，请确保包含了两个测试文件。big.js 定义中还提供了一个 [实际例子](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/big.js/test)。
+要测试你的类型定义是否能全局引用或者作为模块导入，请创建一个 `test` 文件，并在其中放置两个测试文件。一个命名为 `YourLibraryName-global.test.ts`, 另一个为 `YourLibraryName-module.test.ts`. *全局* 测试文件应该根据如何在全局范围内库可用的网页上加载的脚本中使用它来执行定义，在这种情况下，你不应该制定 import 语句。*模块* 测试文件应该根据导入时的使用方式（包括 `import` 语句）来执行定义。如果在 `tsconfig.json` 文件中指定了 `files` 属性，请确保包含了两个测试文件。big.js 定义中还提供了一个 [实际例子](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/big.js/test)。
 
 请注意，不需要在每个测试文件中完全执行定义 - 只需要在全局测试文件中测试全局可访问元素并在模块测试文件中完全执行定义，反之亦然。
 

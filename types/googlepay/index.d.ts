@@ -557,32 +557,41 @@ declare namespace google.payments.api {
     }
 
     /**
-     * Tokenization parameters.
+     * Payment gateway tokenization parameters.
      *
      * These parameters will be used to tokenize/transmit the
      * payment method returned to you in a format you can charge or reference.
      */
-    interface PaymentMethodTokenizationSpecification {
+    interface PaymentGatewayTokenizationSpecification {
         /**
          * The type of payment method tokenization to apply to the selected
          * payment method.
-         *
-         * This field is required.
          */
-        type: PaymentMethodTokenizationType;
+        type: "PAYMENT_GATEWAY";
 
         /**
-         * Specific parameters used for tokenization.
-         *
-         * The values in this object will depend on the value of type set in
-         * [[PaymentMethodTokenizationSpecification.type|`type`]]:
-         *
-         * - [[PaymentMethodTokenizationType|`PAYMENT_GATEWAY`]]:
-         *   [[PaymentGatewayTokenizationParameters|`PaymentGatewayTokenizationParameters`]]
-         * - [[PaymentMethodTokenizationType|`DIRECT`]]:
-         *   [[DirectTokenizationParameters|`DirectTokenizationParameters`]]
+         * Specific parameters used for payment gateway tokenization.
          */
-        parameters: PaymentGatewayTokenizationParameters | DirectTokenizationParameters;
+        parameters: PaymentGatewayTokenizationParameters;
+    }
+
+    /**
+     * Direct tokenization parameters.
+     *
+     * These parameters will be used to tokenize/transmit the direct
+     * payment method returned to you in a format you can charge or reference.
+     */
+    interface DirectTokenizationSpecification {
+        /**
+         * The type of payment method tokenization to apply to the selected
+         * payment method.
+         */
+        type: "DIRECT";
+
+        /**
+         * Specific parameters used for direct tokenization.
+         */
+        parameters: DirectTokenizationParameters;
     }
 
     /**
@@ -1285,6 +1294,14 @@ declare namespace google.payments.api {
     type PaymentMethodType = "CARD" | "PAYPAL";
 
     /**
+     * Tokenization parameters.
+     *
+     * These parameters will be used to tokenize/transmit the
+     * payment method returned to you in a format you can charge or reference.
+     */
+    type PaymentMethodTokenizationSpecification = PaymentGatewayTokenizationSpecification | DirectTokenizationSpecification;
+
+    /**
      * Payment method tokenization type enum string.
      *
      * Options:
@@ -1650,7 +1667,7 @@ declare namespace google.payments.api {
         buttonColor?: ButtonColor;
 
         /**
-         * @default "long"
+         * @default "buy"
          */
         buttonType?: ButtonType;
     }
@@ -1897,18 +1914,29 @@ declare namespace google.payments.api {
     /**
      * Supported methods for presenting the Google Pay button.
      *
+     * A translated button label may appear if a language specified in the
+     * viewer's browser matches an [available
+     * language](https://developers.google.com/pay/api/web/guides/brand-guidelines#payment-buttons-assets).
+     *
+     *
      * Options:
      *
+     * - `buy`:
+     *   "Buy with Google Pay" button.
+     *
+     * - `donate`:
+     *   "Donate with Google Pay" button.
+     *
+     * - `plain`:
+     *   "Google Pay" button without text.
+     *
      * - `long`:
-     *   "Buy with Google Pay" button. A translated button label may
-     *   appear if a language specified in the viewer's browser matches an
-     *   [available
-     *   language](https://developers.google.com/pay/api/web/guides/brand-guidelines#payment-buttons-assets).
+     *   Same as "buy".
      *
      * - `short`:
-     *   Google Pay payment button without the "Buy with" text.
+     *   Same as "plain".
      */
-    type ButtonType = "long" | "short";
+    type ButtonType = "buy" | "donate" | "plain" | "long" | "short";
 
     /**
      * Supported environment names to run Google Pay.

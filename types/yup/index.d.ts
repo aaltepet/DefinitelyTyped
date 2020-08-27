@@ -13,6 +13,7 @@
 //                 Kalley Powell <https://github.com/kalley>
 //                 Elías García <https://github.com/elias-garcia>
 //                 Ian Sanders <https://github.com/iansan5653>
+//                 Jay Fong <https://github.com/fjc0k>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 3.6
 
@@ -128,6 +129,7 @@ export interface StringSchema<T extends string | null | undefined = string | und
     ): StringSchema<T>;
     email(message?: StringLocale['email']): StringSchema<T>;
     url(message?: StringLocale['url']): StringSchema<T>;
+    uuid(message?: StringLocale['uuid']): StringSchema<T>;
     ensure(): StringSchema<T>;
     trim(message?: StringLocale['trim']): StringSchema<T>;
     lowercase(message?: StringLocale['lowercase']): StringSchema<T>;
@@ -146,8 +148,12 @@ export interface StringSchema<T extends string | null | undefined = string | und
         arrayOfValues: ReadonlyArray<U | Ref>,
         message?: MixedLocale['oneOf'],
     ): StringSchema<MaintainOptionality<T, U>>;
+    /*
+        All TestFunction generics are intentionally T with (undefined | null) as previous .required / .defined / .nullable
+        will narrow out those types, and tests run for (undefined | null) even if they're not allowed.
+    */
+    test(name: string, message: TestOptionsMessage, test: TestFunction<T | undefined | null>): this;
     test<U extends T = T>(name: string, message: TestOptionsMessage, test: AssertingTestFunction<U>): StringSchema<U>;
-    test(name: string, message: TestOptionsMessage, test: TestFunction): this;
     test<U extends T = T>(options: AssertingTestOptions<U, Record<string, any>>): StringSchema<U>;
     test(options: TestOptions<Record<string, any>>): this;
     optional(): StringSchema<T | undefined>;
@@ -182,8 +188,8 @@ export interface NumberSchema<T extends number | null | undefined = number | und
         arrayOfValues: ReadonlyArray<U | Ref>,
         message?: MixedLocale['oneOf'],
     ): NumberSchema<MaintainOptionality<T, U>>;
+    test(name: string, message: TestOptionsMessage, test: TestFunction<T | undefined | null>): this;
     test<U extends T = T>(name: string, message: TestOptionsMessage, test: AssertingTestFunction<U>): NumberSchema<U>;
-    test(name: string, message: TestOptionsMessage, test: TestFunction): this;
     test<U extends T = T>(options: AssertingTestOptions<U, Record<string, any>>): NumberSchema<U>;
     test(options: TestOptions<Record<string, any>>): this;
     optional(): NumberSchema<T | undefined>;
@@ -209,8 +215,8 @@ export interface BooleanSchema<T extends boolean | null | undefined = boolean | 
         arrayOfValues: ReadonlyArray<U | Ref>,
         message?: MixedLocale['oneOf'],
     ): BooleanSchema<MaintainOptionality<T, U>>;
+    test(name: string, message: TestOptionsMessage, test: TestFunction<T | undefined | null>): this;
     test<U extends T = T>(name: string, message: TestOptionsMessage, test: AssertingTestFunction<U>): BooleanSchema<U>;
-    test(name: string, message: TestOptionsMessage, test: TestFunction): this;
     test<U extends T = T>(options: AssertingTestOptions<U, Record<string, any>>): BooleanSchema<U>;
     test(options: TestOptions<Record<string, any>>): this;
     optional(): BooleanSchema<T | undefined>;
@@ -238,8 +244,8 @@ export interface DateSchema<T extends Date | null | undefined = Date | undefined
         arrayOfValues: ReadonlyArray<U | Ref>,
         message?: MixedLocale['oneOf'],
     ): DateSchema<MaintainOptionality<T, U>>;
+    test(name: string, message: TestOptionsMessage, test: TestFunction<T | undefined | null>): this;
     test<U extends T = T>(name: string, message: TestOptionsMessage, test: AssertingTestFunction<U>): DateSchema<U>;
-    test(name: string, message: TestOptionsMessage, test: TestFunction): this;
     test<U extends T = T>(options: AssertingTestOptions<U, Record<string, any>>): DateSchema<U>;
     test(options: TestOptions<Record<string, any>>): this;
     optional(): DateSchema<T | undefined>;
@@ -250,7 +256,7 @@ export interface ArraySchemaConstructor {
     new (): NotRequiredArraySchema<{}>;
 }
 
-interface BasicArraySchema<E, T extends E[] | null | undefined> extends Schema<T> {
+export interface BasicArraySchema<E, T extends E[] | null | undefined> extends Schema<T> {
     min(limit: number | Ref, message?: ArrayLocale['min']): this;
     max(limit: number | Ref, message?: ArrayLocale['max']): this;
     ensure(): this;
@@ -264,7 +270,7 @@ interface BasicArraySchema<E, T extends E[] | null | undefined> extends Schema<T
     // applies to arrays anyway.
     oneOf(arrayOfValues: ReadonlyArray<T | Ref | null>, message?: MixedLocale['oneOf']): this;
     equals(arrayOfValues: ReadonlyArray<T | Ref | null>, message?: MixedLocale['oneOf']): this;
-    test(name: string, message: TestOptionsMessage, test: TestFunction): this;
+    test(name: string, message: TestOptionsMessage, test: TestFunction<T | undefined | null>): this;
     test(options: TestOptions<Record<string, any>>): this;
     innerType: Schema<E>;
 }
@@ -360,15 +366,15 @@ export interface ObjectSchema<T extends object | null | undefined = object | und
     concat<U extends object>(schema: ObjectSchema<U>): ObjectSchema<T & U>;
     oneOf<U extends T>(arrayOfValues: ReadonlyArray<U | Ref>, message?: MixedLocale['oneOf']): ObjectSchema<U>;
     equals<U extends T>(arrayOfValues: ReadonlyArray<U | Ref>, message?: MixedLocale['oneOf']): ObjectSchema<U>;
+    test(name: string, message: TestOptionsMessage, test: TestFunction<T | undefined | null>): this;
     test<U extends T = T>(name: string, message: TestOptionsMessage, test: AssertingTestFunction<U>): ObjectSchema<U>;
-    test(name: string, message: TestOptionsMessage, test: TestFunction): this;
     test<U extends T = T>(options: AssertingTestOptions<U, Record<string, any>>): ObjectSchema<U>;
     test(options: TestOptions<Record<string, any>>): this;
 }
 
-export type TestFunction = (
+export type TestFunction<T = unknown> = (
     this: TestContext,
-    value: any,
+    value: T,
 ) => boolean | ValidationError | Promise<boolean | ValidationError>;
 export type AssertingTestFunction<T> = (this: TestContext, value: any) => value is T;
 
@@ -572,7 +578,7 @@ export interface FormatErrorParams {
 
 export type LocaleValue = string | ((params: FormatErrorParams) => string);
 
-interface MixedLocale {
+export interface MixedLocale {
     default?: TestOptionsMessage;
     required?: TestOptionsMessage;
     oneOf?: TestOptionsMessage<{ values: any }>;
@@ -580,19 +586,20 @@ interface MixedLocale {
     notType?: LocaleValue;
 }
 
-interface StringLocale {
+export interface StringLocale {
     length?: TestOptionsMessage<{ length: number }>;
     min?: TestOptionsMessage<{ min: number }>;
     max?: TestOptionsMessage<{ max: number }>;
     matches?: TestOptionsMessage<{ regex: RegExp }>;
     email?: TestOptionsMessage<{ regex: RegExp }>;
     url?: TestOptionsMessage<{ regex: RegExp }>;
+    uuid?: TestOptionsMessage<{ regex: RegExp }>;
     trim?: TestOptionsMessage;
     lowercase?: TestOptionsMessage;
     uppercase?: TestOptionsMessage;
 }
 
-interface NumberLocale {
+export interface NumberLocale {
     min?: TestOptionsMessage<{ min: number }>;
     max?: TestOptionsMessage<{ max: number }>;
     lessThan?: TestOptionsMessage<{ less: number }>;
@@ -602,16 +609,16 @@ interface NumberLocale {
     integer?: TestOptionsMessage;
 }
 
-interface DateLocale {
+export interface DateLocale {
     min?: TestOptionsMessage<{ min: Date | string }>;
     max?: TestOptionsMessage<{ max: Date | string }>;
 }
 
-interface ObjectLocale {
+export interface ObjectLocale {
     noUnknown?: TestOptionsMessage;
 }
 
-interface ArrayLocale {
+export interface ArrayLocale {
     min?: TestOptionsMessage<{ min: number }>;
     max?: TestOptionsMessage<{ max: number }>;
 }
@@ -638,7 +645,9 @@ type KeyOfUndefined<T> = {
 type PreserveNull<T> = T extends null ? null : never;
 type PreserveUndefined<T> = T extends undefined ? undefined : never;
 type PreserveOptionals<T> = PreserveNull<T> | PreserveUndefined<T>;
-type Id<T> = { [K in keyof T]: T[K] };
+type Id<T> = {
+    [K in keyof T]: T[K] extends object ? InnerInferType<T[K]> : T[K];
+};
 type RequiredProps<T> = Pick<T, Exclude<keyof T, KeyOfUndefined<T>>>;
 type NotRequiredProps<T> = Partial<Pick<T, KeyOfUndefined<T>>>;
 type InnerInferType<T> =
